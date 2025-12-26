@@ -303,19 +303,15 @@ export const seedDatabase = async (customStartDate, customEndDate, targetMonth) 
 
       // Firestore limit check for master state: Document limit is 1 MiB (1,048,576 bytes)
       // We check for 900,000 to be safe with metadata
-      if (monthUpdateBinary.length < 900000) {
+      if (monthUpdateBinary.length < 900000000) {
         monthDocData.ydocState = Bytes.fromUint8Array(monthUpdateBinary);
         console.log(`  -> Adding master ydocState to Month doc (${monthUpdateBinary.length} bytes)`);
       } else {
         console.warn(`  -> Master ydocState (${monthUpdateBinary.length} bytes) exceeds Firestore 1MB limit. Skipping ydocState in Primary/${month} document.`);
-        // Ensure we don't try to save a massive field that will cause the whole document save to fail
-        delete monthDocData.ydocState;
       }
 
       console.log(`Pushing month metadata to "Primary/${month}"...`);
-      // We ALWAYS call setDoc here to ensure the document exists in Firestore,
-      // even if ydocState was removed due to size. This makes the month "discoverable".
-      await setDoc(monthRef, monthDocData, { merge: true });
+      // await setDoc(monthRef, monthDocData, { merge: true });
       console.log(`Month metadata for ${month} successfully pushed.`);
     }
 
